@@ -15,18 +15,27 @@ Attributes
 ----------
 _consecutiveDrowsyFrames: An integer representing the number of consecutive
     frames in which the subject has thier eyes closed.
+_maxDrowsyFramesBeforeSignal: An integer representing the number of consecutive
+    frames in which the subject must have his/her eyes closed before a call to
+    detect() will return True, indicating that the driver appears drowsy.
+_minimumEyeAspectRatioBeforeCloseAssumed: A floating point value representing
+    the minimum ratio between the height and width of the subject's eyes before
+    it is decided that the user's eyes are closed.
 
 Methods
 -------
 detect(images)
     Returns True if, after analyzing images, it is determined that the person
     depicted in the images in drowsy, False otherwise.
+getEyeAspectRatio(eye)
+    Returns eye aspect ratio given ndarry containing coordinates of eyes.
 """
 class DrowsinessDetector:
     def __init__(self):
         dotenv.load_dotenv()
         self._consecutiveDrowsyFrames = 0
-        self._maxDrowsyFramesBeforeSignal = os.getenv("FRAMES_BEFORE_DROWSINESS_CONFIRMED")
+        self._maxDrowsyFramesBeforeSignal = int(os.getenv("FRAMES_BEFORE_DROWSINESS_CONFIRMED"))
+        self._minimumEyeAspectRatioBeforeCloseAssumed = float(os.getenv("MINIMUM_EYE_ASPECT_RATIO_BEFORE_ASSUMED_CLOSED"))
 
     """
     Analyzes eyes appearing in images and makes a determination based on
@@ -42,43 +51,44 @@ class DrowsinessDetector:
     def detect(self, images):
         ## Get facial landmarks (namely, left and right eyes)
         landmarkDetector = dlib.get_frontal_face_detector()
-        predictor = dlib.shape_predictor("/home/gregory/Downloads/shape_predictor_68_face_landmarks.dat")
+        shapePredictor = dlib.shape_predictor("/home/gregory/Downloads/shape_predictor_68_face_landmarks.dat")
         img = dlib.load_rgb_image("testImage.png")
         dets = landmarkDetector(img, 1)
         print("num faces: ", len(dets))
 
-        # Find the 5 face landmarks we need to do the alignment.
-        faces = dlib.full_object_detections()
-        faces.append(predictor(img, dets[0]))
+        # Find facial landmarks we need to do the alignment.
+        facialLandmarks = shapePredictor(img, dets[0])
 
         # grab the indexes of the facial landmarks for the left and
         # right eye, respectively
         (lStart, lEnd) = face_utils.FACIAL_LANDMARKS_IDXS["left_eye"]
         (rStart, rEnd) = face_utils.FACIAL_LANDMARKS_IDXS["right_eye"]
 
-        print(faces)
-        shape = face_utils.shape_to_np(faces[0])
-        print(shape)
+        shape = face_utils.shape_to_np(facialLandmarks)
 
         leftEye = shape[lStart:lEnd]
         rightEye = shape[rStart:rEnd]
-        leftEAR = self.eye_aspect_ratio(leftEye)
-        rightEAR = self.eye_aspect_ratio(rightEye)
-
-        print(leftEye)
+        leftEAR = self.getEyeAspectRatio(leftEye)
+        rightEAR = self.getEyeAspectRatio(rightEye)
 
         leftEyeHull = cv2.convexHull(leftEye)
         rightEyeHull = cv2.convexHull(rightEye)
         cv2.drawContours(img, [leftEyeHull], -1, (0, 255, 0), 1)
         cv2.drawContours(img, [rightEyeHull], -1, (0, 255, 0), 1)
-
 ##        cv2.imshow("sklfjd", img)
 ##        cv2.waitKey()
-
         ear = (leftEAR + rightEAR) / 2
-        print(ear)
 
-        return True
+        if ear < self._getMinimumEyeAspectRatio():
+            self._incrementNumberConsecutiveDrowsyFrames()
+
+        subjectIsDrowsy = self._getNumberConsecutiveDrowsyFrames() >= \
+                                    self._getMaxDrowsyFramesBeforeSignal()
+
+        if subjectIsDrowsy:
+            self._resetNumberConsecutiveDrowsyFrames()
+
+        return subjectIsDrowsy
 
 
     """
@@ -90,7 +100,7 @@ class DrowsinessDetector:
         an eye detected in an image.
     @return double The ration between the height and width of an eye.
     """
-    def eye_aspect_ratio(self, eye):
+    def getEyeAspectRatio(self, eye):
         # compute the euclidean distances between the two sets of
         # vertical eye landmarks (x, y)-coordinates
         A = dist.euclidean(eye[1], eye[5])
@@ -103,6 +113,21 @@ class DrowsinessDetector:
         ear = (A + B) / (2.0 * C)
 
         return ear
+
+    def _getMinimumEyeAspectRatio(self):
+        return self._minimumEyeAspectRatioBeforeCloseAssumed
+
+    def _getMaxDrowsyFramesBeforeSignal(self):
+        return self._maxDrowsyFramesBeforeSignal
+
+    def _getNumberConsecutiveDrowsyFrames(self):
+        return self._consecutiveDrowsyFrames
+
+    def _incrementNumberConsecutiveDrowsyFrames(self):
+        self._consecutiveDrowsyFrames += 1
+
+    def _resetNumberConsecutiveDrowsyFrames(self):
+        self._consecutiveDrowsyFrames = 0
 
 if __name__ == "__main__":
     d = DrowsinessDetector()
