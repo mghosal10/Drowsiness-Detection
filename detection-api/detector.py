@@ -24,7 +24,7 @@ _minimumEyeAspectRatioBeforeCloseAssumed: A floating point value representing
 
 Methods
 -------
-detect(images)
+areEyesClosed(images)
     Returns True if, after analyzing images, it is determined that the person
     depicted in the images in drowsy, False otherwise.
 getEyeAspectRatio(eye)
@@ -38,27 +38,23 @@ class DrowsinessDetector:
         self._minimumEyeAspectRatioBeforeCloseAssumed = float(os.getenv("MINIMUM_EYE_ASPECT_RATIO_BEFORE_ASSUMED_CLOSED"))
 
     """
-    Analyzes eyes appearing in images and makes a determination based on
+    Analyzes eyes appearing in image and makes a determination based on
     the number of frames for which the face in the images has had his/her
     eyes closed as to whether the images depict a drowsy person and makes
     a determination one way or the other.
 
-    @param images List[List[List[int]]] A 3-dimensional array representing a
-        a collection of images including only a single face.
+    @param img List[List[int]] A 2-dimensional ndarray representing a
+        an image including only a single face.
     @return bool True if the enough frames have passed that the person depicted
         in the images can be considered drowsy, else False.
     """
-    def detect(self, images):
-        ## Get facial landmarks (namely, left and right eyes)
+    def areEyesClosed(self, img):
         landmarkDetector = dlib.get_frontal_face_detector()
         shapePredictor = dlib.shape_predictor("/home/gregory/Downloads/shape_predictor_68_face_landmarks.dat")
-        img = dlib.load_rgb_image("testImage.png")
         dets = landmarkDetector(img, 1)
         print("num faces: ", len(dets))
 
-        # Find facial landmarks we need to do the alignment.
         facialLandmarks = shapePredictor(img, dets[0])
-
         # grab the indexes of the facial landmarks for the left and
         # right eye, respectively
         (lStart, lEnd) = face_utils.FACIAL_LANDMARKS_IDXS["left_eye"]
@@ -75,21 +71,14 @@ class DrowsinessDetector:
         rightEyeHull = cv2.convexHull(rightEye)
         cv2.drawContours(img, [leftEyeHull], -1, (0, 255, 0), 1)
         cv2.drawContours(img, [rightEyeHull], -1, (0, 255, 0), 1)
-##        cv2.imshow("sklfjd", img)
-##        cv2.waitKey()
         ear = (leftEAR + rightEAR) / 2
+        print(ear)
 
         if ear < self._getMinimumEyeAspectRatio():
             self._incrementNumberConsecutiveDrowsyFrames()
+            return True
 
-        subjectIsDrowsy = self._getNumberConsecutiveDrowsyFrames() >= \
-                                    self._getMaxDrowsyFramesBeforeSignal()
-
-        if subjectIsDrowsy:
-            self._resetNumberConsecutiveDrowsyFrames()
-
-        return subjectIsDrowsy
-
+        return False
 
     """
     Calculates the eye-aspect ratio described in
@@ -131,4 +120,7 @@ class DrowsinessDetector:
 
 if __name__ == "__main__":
     d = DrowsinessDetector()
-    d.detect([])
+    img = dlib.load_grayscale_image("testImage.png")
+    print(img.shape)
+    print(d.areEyesClosed(img))
+    print(d.areEyesClosed(dlib.load_grayscale_image("closed.jpeg")))
