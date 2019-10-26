@@ -14,23 +14,17 @@
         android:orientation="vertical">
 
         <Button
-            android:id="@+id/start_camera_button"
+            android:id="@+id/camera_button"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:backgroundTint="@color/colorAccent"
-            android:onClick="startCamera"
+            android:onClick="toggleCamera"
             android:text="@string/start_camera_button"
             android:textColor="@android:color/white"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <Button
-            android:id="@+id/stop_camera_button"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:onClick="stopCamera"
-            android:text="@string/stop_camera_button" />
     </LinearLayout>
 
     <FrameLayout

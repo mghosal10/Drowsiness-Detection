@@ -69,7 +69,7 @@ public class HomeActivity extends AppCompatActivity {
         return true;
     }
 
-    public void startCamera(View view) {
+    public void startCameraActivity(View view) {
         Log.d("HomeActivity", "startCamera()");
 
         // check if this device has a camera
