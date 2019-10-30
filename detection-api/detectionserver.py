@@ -60,4 +60,5 @@ def run(server_class=HTTPServer, handler_class=TestDetectionServer, addr="localh
 
 
 if __name__ == "__main__":
-    run(addr = "localhost", port = 8000)
+	#run(addr = "localhost", port = 8000)
+	run(addr = "172.20.10.3", port=8000)
