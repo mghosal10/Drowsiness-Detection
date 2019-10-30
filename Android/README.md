@@ -8,8 +8,8 @@
 
 ## Running with Test Server
 1. Create a WiFi hotspot with personal phone. Then connect laptop (where server script will run) and Android phone to the WiFi hotspot.
-2. Obtain the new IP address of the laptop and correctly set the IP address in `CameraActivity.java` at `serverUrl` and `detectionserver.py`.
-3. Start the `/detection-api/detectionserver.py` server.
+2. Obtain the new IP address of the laptop and correctly set the IP address in `CameraActivity.java` at `serverUrl`. Also change the IP address in the server script `detectionserver.py`.
+3. Start the server by running `python3 /detection-api/detectionserver.py` server.
 4. Start the app from Android Studio.
 
 ## Java Classes
@@ -26,3 +26,4 @@ Custom Java classes are located in: `DrowsinessDetector/app/src/main/java/com/ex
     * [Documentation](https://developer.android.com/docs/)
     * [Camera API](https://developer.android.com/guide/topics/media/camera#custom-camera)
 	* [HttpURLConnection](https://developer.android.com/reference/java/net/HttpURLConnection.html)
+	* [AsyncTask](https://developer.android.com/reference/android/os/AsyncTask)

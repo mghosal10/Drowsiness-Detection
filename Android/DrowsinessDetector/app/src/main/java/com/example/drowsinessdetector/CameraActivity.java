@@ -39,6 +39,7 @@ public class CameraActivity extends AppCompatActivity {
     private MediaRecorder mrec;
 
     private String serverUrl = "http://172.20.10.3:8000";
+    AsyncTask<String, Void, Void> sender;
 
     private boolean isRecording = false;
 
@@ -126,6 +127,16 @@ public class CameraActivity extends AppCompatActivity {
 
         Log.d("startCamera", "Camera is ready to record.");
         mrec.start();
+
+        // Start the background process VideoSender, that periodically sends video to server
+        try {
+            this.sender = new VideoSender(mrec, this.outfile_path);
+            sender.execute(this.serverUrl);
+        } catch (Exception e) {
+            Log.d("startCamera", "Failed to send video");
+            return false;
+        }
+
         return true; // success
     }
 
@@ -152,17 +163,18 @@ public class CameraActivity extends AppCompatActivity {
 
             Log.d("stopCamera", "Releasing camera.");
             mCamera.release();
+            mCamera = null;
 
-            // save video
-            File vid = new File(this.outfile_path); // Does this overwrite the file or...?
+//            // save video
+//            File vid = new File(this.outfile_path); // Does this overwrite the file or...?
 
             // send video to server
-            try {
-                AsyncTask<String, Void, Void> sender = new VideoSender(vid);
-                sender.execute(this.serverUrl);
-            } catch (Exception e) {
-                Log.d("stopCamera", "Failed to send video");
-            }
+//            try {
+//                AsyncTask<String, Void, Void> sender = new VideoSender(vid);
+//                sender.execute(this.serverUrl);
+//            } catch (Exception e) {
+//                Log.d("stopCamera", "Failed to send video");
+//            }
 
         } else {
             Log.d("stopCamera", "Attempted to stop with no MediaRecorder installed.");
@@ -187,7 +199,10 @@ public class CameraActivity extends AppCompatActivity {
                             stopCamera();
                             setCameraButtonText(cameraButton, "Record");
                             isRecording = false;
+                            sender.cancel(true); // stop sending video
+                            // return to home screen
                             Log.d("toggleCamera", "Stopped recording");
+                            returnToMain(findViewById(android.R.id.content));
                         } else {
                             if(startCamera()) {
                                 setCameraButtonText(cameraButton, "Stop");
@@ -203,37 +218,4 @@ public class CameraActivity extends AppCompatActivity {
         ); // cameraButton.setOnClickListener ; end
     }
 
-    /* Saving media files */
-
-//    // create file for saving video
-//    private static File getOutputMediaFile(int type) {
-//        File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
-//                Environment.DIRECTORY_PICTURES), "DrowsinessDetector");
-//
-//        // create directory for this app, if it doesn't exist
-//        if(!mediaStorageDir.exists()) {
-//            if(!mediaStorageDir.mkdirs()) {
-//                Log.d("CameraActivity", "Failed to create a directory");
-//                return null;
-//            }
-//        }
-//
-//        // create a media file
-//        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-//        File mediaFile;
-//        if(type == MEDIA_TYPE_VIDEO) {
-//            mediaFile = new File(mediaStorageDir.getPath() + File.separator +
-//                    "VID_" + timeStamp + ".mp4");
-//        } else {
-//            Log.d("CameraActivity", "Error. Only capturing videos");
-//            return null;
-//        }
-//
-//        return mediaFile;
-//    }
-//
-//    // create URI for image
-//    private static Uri getOutputMediaFileUri(int type) {
-//        return Uri.fromFile(getOutputMediaFile((type)));
-//    }
 }

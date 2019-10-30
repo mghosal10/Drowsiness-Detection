@@ -11,8 +11,13 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 
 public class HomeActivity extends AppCompatActivity {
+
+    public static final String EXTRA_MESSAGE =
+            "com.example.android.twoactivities.extra.MESSAGE";
+    private int mStreak = 0;
 
     private final int CAMERA_PERMISSION_REQUEST = 0;
 
@@ -26,6 +31,15 @@ public class HomeActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+
+        Intent intent = getIntent(); // get Activity that initiated this Activity
+        String username = intent.getStringExtra(MainActivity.EXTRA_MESSAGE);
+        TextView usernameDisplay = findViewById(R.id.username_display);
+        usernameDisplay.setText(username);
+
+        TextView streakDisplay = findViewById(R.id.streak_value);
+        streakDisplay.setText(Integer.toString(mStreak));
+
         Log.d("HomeActivity", "onCreate(): Has camera: " + deviceHasCamera(this));
     }
 

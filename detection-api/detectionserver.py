@@ -39,6 +39,7 @@ class TestDetectionServer(BaseHTTPRequestHandler):
         self._set_headers()
 
     def do_POST(self):
+        print('Post!')
         ctype, pdict = cgi.parse_header(self.headers['content-type'])
         pdict['boundary'] = bytes(pdict['boundary'], "utf-8")
         postvars = cgi.parse_multipart(self.rfile, pdict)
