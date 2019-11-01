@@ -23,7 +23,7 @@ public class MainActivity extends AppCompatActivity {
     public static final String EXTRA_MESSAGE =
             "com.example.android.twoactivities.extra.MESSAGE";
 
-    private EditText mUsername;
+    private EditText editTextEmail;
     private Button buttonRegister;
     private EditText editTextPassword;
     private Button buttonLogin;
@@ -41,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
         // save reference to register field
         buttonRegister = findViewById(R.id.register_button);
         // save reference to username field
-        mUsername = findViewById(R.id.username_field);
+        editTextEmail = findViewById(R.id.email_field);
         // save reference to password field
         editTextPassword = findViewById(R.id.password_field);
         // save reference to login field
@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 //trim username and password strings
-                String username = mUsername.getText().toString().trim();
+                String username = editTextEmail.getText().toString().trim();
                 String password = editTextPassword.getText().toString().trim();
 
                 //display error message if username and password fields are empty
@@ -64,8 +64,8 @@ public class MainActivity extends AppCompatActivity {
                 }
                 //display error message if username field is empty
                 else if (username.isEmpty()) {
-                    mUsername.setError("Please enter username");
-                    mUsername.requestFocus();
+                    editTextEmail.setError("Please enter username");
+                    editTextEmail.requestFocus();
                 }
                 //display error message if password field is empty
                 else if (password.isEmpty()) {
@@ -111,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 //trim username and password strings
-                String username = mUsername.getText().toString().trim();
+                String username = editTextEmail.getText().toString().trim();
                 String password = editTextPassword.getText().toString().trim();
 
                 //display error message if username and password fields are empty
@@ -120,8 +120,8 @@ public class MainActivity extends AppCompatActivity {
                 }
                 //display error message if username field is empty
                 else if (username.isEmpty()) {
-                    mUsername.setError("Please enter username id");
-                    mUsername.requestFocus();
+                    editTextEmail.setError("Please enter username id");
+                    editTextEmail.requestFocus();
                 }
                 //display error message if password field is empty
                 else if (password.isEmpty()) {

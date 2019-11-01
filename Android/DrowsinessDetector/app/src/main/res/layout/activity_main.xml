@@ -8,12 +8,12 @@
     tools:context=".MainActivity">
 
     <EditText
-        android:id="@+id/username_field"
+        android:id="@+id/email_field"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"
-        android:hint="@string/username_button"
-        android:inputType="textPersonName" />
+        android:hint="Email"
+        android:inputType="textEmailAddress" />
 
     <EditText
         android:id="@+id/password_field"
