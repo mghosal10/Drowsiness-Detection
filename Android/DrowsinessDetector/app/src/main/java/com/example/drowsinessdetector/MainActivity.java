@@ -30,53 +30,73 @@ public class MainActivity extends AppCompatActivity {
 
     FirebaseAuth firebaseAuth;
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // save reference to username field
-        //mUsername = findViewById(R.id.username_field);
 
+        //get Firebase instance
         firebaseAuth = FirebaseAuth.getInstance();
+        // save reference to register field
+        buttonRegister = findViewById(R.id.register_button);
+        // save reference to username field
+        mUsername = findViewById(R.id.username_field);
+        // save reference to password field
+        editTextPassword = findViewById(R.id.password_field);
+        // save reference to login field
+        buttonLogin = findViewById(R.id.login_button);
 
-        buttonRegister = (Button) findViewById(R.id.register_button);
-        mUsername = (EditText) findViewById(R.id.username_field);
-        editTextPassword = (EditText) findViewById(R.id.password_field);
-        buttonLogin = (Button) findViewById(R.id.login_button);
 
-
-
+        // Registration
         buttonRegister.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
 
-                String email = mUsername.getText().toString().trim();
+                //trim username and password strings
+                String username = mUsername.getText().toString().trim();
                 String password = editTextPassword.getText().toString().trim();
 
-                if (email.isEmpty() && password.isEmpty()) {
+                //display error message if username and password fields are empty
+                if (username.isEmpty() && password.isEmpty()) {
                     Toast.makeText(MainActivity.this, "Fields are empty", Toast.LENGTH_SHORT).show();
-                } else if (email.isEmpty()) {
+                }
+                //display error message if username field is empty
+                else if (username.isEmpty()) {
                     mUsername.setError("Please enter username");
                     mUsername.requestFocus();
-                } else if (password.isEmpty()) {
+                }
+                //display error message if password field is empty
+                else if (password.isEmpty()) {
                     editTextPassword.setError("Please enter password");
                     editTextPassword.requestFocus();
-                } else if (!(email.isEmpty() && password.isEmpty())) {
-                    firebaseAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(MainActivity.this, new OnCompleteListener<AuthResult>() {
+                }
+                //display error message if password is less than 6 characters
+                else if(password.length() < 6)
+                {
+                    editTextPassword.setError("Enter password greater than 6 characters!");
+                    editTextPassword.requestFocus();
+                }
+                //if username and password fields are not empty then register the user
+                else if (!(username.isEmpty() && password.isEmpty())) {
+                    firebaseAuth.createUserWithEmailAndPassword(username, password).addOnCompleteListener(MainActivity.this, new OnCompleteListener<AuthResult>() {
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
-                            if (!task.isSuccessful()) {
+                            // if registration fails show an error message
+                            if (!task.isSuccessful())
+                            {
                                 Toast.makeText(MainActivity.this, "Sign-up unsuccessful, Please try again!", Toast.LENGTH_SHORT).show();
-                            } else {
+                            }
+                            // if registration is successful go to the same Activity
+                            else {
                                 startActivity(new Intent(MainActivity.this, MainActivity.class));
                             }
                         }
                     });
-                } else {
+                }
+                //display error message if something else goes wrong
+                else {
                     Toast.makeText(MainActivity.this, "Error Occurred", Toast.LENGTH_SHORT).show();
                 }
             }
@@ -84,32 +104,42 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-
+        // Login
         buttonLogin.setOnClickListener(new View.OnClickListener(){
 
             @Override
             public void onClick(View v) {
 
-                String email = mUsername.getText().toString().trim();
+                //trim username and password strings
+                String username = mUsername.getText().toString().trim();
                 String password = editTextPassword.getText().toString().trim();
 
-                if (email.isEmpty() && password.isEmpty()) {
+                //display error message if username and password fields are empty
+                if (username.isEmpty() && password.isEmpty()) {
                     Toast.makeText(MainActivity.this, "Fields are empty", Toast.LENGTH_SHORT).show();
-                } else if (email.isEmpty()) {
+                }
+                //display error message if username field is empty
+                else if (username.isEmpty()) {
                     mUsername.setError("Please enter username id");
                     mUsername.requestFocus();
-                } else if (password.isEmpty()) {
+                }
+                //display error message if password field is empty
+                else if (password.isEmpty()) {
                     editTextPassword.setError("Please enter password");
                     editTextPassword.requestFocus();
-                } else if (!(email.isEmpty() && password.isEmpty())) {
+                }
+                //if username and password fields are not empty then login
+                else if (!(username.isEmpty() && password.isEmpty())) {
 
-                    firebaseAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(MainActivity.this, new OnCompleteListener<AuthResult>() {
+                    firebaseAuth.signInWithEmailAndPassword(username, password).addOnCompleteListener(MainActivity.this, new OnCompleteListener<AuthResult>() {
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
+                            // if login fails show an error message
                             if(!task.isSuccessful())
                             {
                                 Toast.makeText(MainActivity.this, "LOGIN FAILED!!", Toast.LENGTH_LONG).show();
                             }
+                            // if login is successful go to the Home Activity
                             else
                             {
                                 Intent intent = new Intent(MainActivity.this, HomeActivity.class);
