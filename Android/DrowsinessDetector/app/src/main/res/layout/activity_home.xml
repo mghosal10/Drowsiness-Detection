@@ -6,6 +6,35 @@
     android:layout_height="match_parent"
     tools:context=".HomeActivity">
 
+
+    <Button
+        android:id="@+id/start_detection_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="305dp"
+        android:layout_marginBottom="257dp"
+        android:backgroundTint="@color/colorPrimaryDark"
+        android:onClick="startCameraActivity"
+        android:text="@string/start_detector"
+        android:textColor="@android:color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <Button
+        android:id="@+id/logout_button"
+        android:layout_width="412dp"
+        android:layout_height="50dp"
+        android:backgroundTint="@color/colorPrimaryDark"
+        android:gravity="center"
+        android:text="LOGOUT"
+        android:textColor="@android:color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/start_detection_button"
+        app:layout_constraintVertical_bias="1.0" />
+
     <TextView
         android:id="@+id/streak_label"
         android:layout_width="158dp"
@@ -18,32 +47,7 @@
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/start_detection_button"
-        app:layout_constraintVertical_bias="1.0" />
-
-    <TextView
-        android:id="@+id/streak_value"
-        android:layout_width="77dp"
-        android:layout_height="45dp"
-        android:layout_marginBottom="104dp"
-        android:gravity="center"
-        android:textSize="35sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <Button
-        android:id="@+id/start_detection_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:backgroundTint="@color/colorPrimaryDark"
-        android:text="@string/start_detector"
-        android:textColor="@android:color/white"
-        android:onClick="startCameraActivity"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintVertical_bias="0.98" />
 
     <TextView
         android:id="@+id/welcome_display"
@@ -71,6 +75,18 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/welcome_display"
         app:layout_constraintVertical_bias="0.0" />
+
+    <TextView
+        android:id="@+id/streak_value"
+        android:layout_width="77dp"
+        android:layout_height="45dp"
+        android:layout_marginBottom="128dp"
+        android:gravity="center"
+        android:textSize="35sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

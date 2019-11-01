@@ -86,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
                             // if registration fails show an error message
                             if (!task.isSuccessful())
                             {
-                                Toast.makeText(MainActivity.this, "Sign-up unsuccessful, Please try again!", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(MainActivity.this, "Registration failed!" + "\n" + task.getException().getMessage(), Toast.LENGTH_LONG).show();
                             }
                             // if registration is successful go to the same Activity
                             else {
@@ -137,7 +137,7 @@ public class MainActivity extends AppCompatActivity {
                             // if login fails show an error message
                             if(!task.isSuccessful())
                             {
-                                Toast.makeText(MainActivity.this, "LOGIN FAILED!!", Toast.LENGTH_LONG).show();
+                                Toast.makeText(MainActivity.this, "LOGIN FAILED!" + "\n" + task.getException().getMessage(), Toast.LENGTH_LONG).show();
                             }
                             // if login is successful go to the Home Activity
                             else

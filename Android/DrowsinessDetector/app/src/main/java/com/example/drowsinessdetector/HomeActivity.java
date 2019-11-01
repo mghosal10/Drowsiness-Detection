@@ -11,13 +11,19 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
+
+import com.google.firebase.auth.FirebaseAuth;
 
 public class HomeActivity extends AppCompatActivity {
 
     public static final String EXTRA_MESSAGE =
             "com.example.android.twoactivities.extra.MESSAGE";
     private int mStreak = 0;
+    private Button buttonLogout;
+
+    FirebaseAuth firebaseAuth;
 
     private final int CAMERA_PERMISSION_REQUEST = 0;
 
@@ -36,11 +42,25 @@ public class HomeActivity extends AppCompatActivity {
         String username = intent.getStringExtra(MainActivity.EXTRA_MESSAGE);
         TextView usernameDisplay = findViewById(R.id.username_display);
         usernameDisplay.setText(username);
+        buttonLogout = findViewById(R.id.logout_button);
 
         TextView streakDisplay = findViewById(R.id.streak_value);
         streakDisplay.setText(Integer.toString(mStreak));
 
         Log.d("HomeActivity", "onCreate(): Has camera: " + deviceHasCamera(this));
+
+        // Logout
+        buttonLogout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Signout from firebase
+                firebaseAuth.getInstance().signOut();
+                // After signout, go to the Login page
+                Intent intent = new Intent(HomeActivity.this, MainActivity.class);
+                startActivity(intent);
+            }
+        });
+
     }
 
     // Called when user decides to grant a permission or not
