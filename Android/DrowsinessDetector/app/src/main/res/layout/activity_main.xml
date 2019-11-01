@@ -24,11 +24,17 @@
         android:inputType="textPassword" />
 
     <Button
+        android:id="@+id/register_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@android:color/holo_green_dark"
+        android:text="Register" />
+
+    <Button
         android:id="@+id/login_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:backgroundTint="@android:color/holo_green_dark"
-        android:onClick="login"
         android:text="@string/login_button" />
 
 </LinearLayout>
