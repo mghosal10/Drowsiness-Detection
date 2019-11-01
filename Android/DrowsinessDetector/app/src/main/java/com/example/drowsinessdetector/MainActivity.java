@@ -55,15 +55,15 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 //trim username and password strings
-                String username = editTextEmail.getText().toString().trim();
+                String email = editTextEmail.getText().toString().trim();
                 String password = editTextPassword.getText().toString().trim();
 
                 //display error message if username and password fields are empty
-                if (username.isEmpty() && password.isEmpty()) {
+                if (email.isEmpty() && password.isEmpty()) {
                     Toast.makeText(MainActivity.this, "Fields are empty", Toast.LENGTH_SHORT).show();
                 }
                 //display error message if username field is empty
-                else if (username.isEmpty()) {
+                else if (email.isEmpty()) {
                     editTextEmail.setError("Please enter username");
                     editTextEmail.requestFocus();
                 }
@@ -79,8 +79,8 @@ public class MainActivity extends AppCompatActivity {
                     editTextPassword.requestFocus();
                 }
                 //if username and password fields are not empty then register the user
-                else if (!(username.isEmpty() && password.isEmpty())) {
-                    firebaseAuth.createUserWithEmailAndPassword(username, password).addOnCompleteListener(MainActivity.this, new OnCompleteListener<AuthResult>() {
+                else if (!(email.isEmpty() && password.isEmpty())) {
+                    firebaseAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(MainActivity.this, new OnCompleteListener<AuthResult>() {
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
                             // if registration fails show an error message
@@ -111,15 +111,15 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 //trim username and password strings
-                String username = editTextEmail.getText().toString().trim();
+                String email = editTextEmail.getText().toString().trim();
                 String password = editTextPassword.getText().toString().trim();
 
                 //display error message if username and password fields are empty
-                if (username.isEmpty() && password.isEmpty()) {
+                if (email.isEmpty() && password.isEmpty()) {
                     Toast.makeText(MainActivity.this, "Fields are empty", Toast.LENGTH_SHORT).show();
                 }
                 //display error message if username field is empty
-                else if (username.isEmpty()) {
+                else if (email.isEmpty()) {
                     editTextEmail.setError("Please enter username id");
                     editTextEmail.requestFocus();
                 }
@@ -129,9 +129,9 @@ public class MainActivity extends AppCompatActivity {
                     editTextPassword.requestFocus();
                 }
                 //if username and password fields are not empty then login
-                else if (!(username.isEmpty() && password.isEmpty())) {
+                else if (!(email.isEmpty() && password.isEmpty())) {
 
-                    firebaseAuth.signInWithEmailAndPassword(username, password).addOnCompleteListener(MainActivity.this, new OnCompleteListener<AuthResult>() {
+                    firebaseAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(MainActivity.this, new OnCompleteListener<AuthResult>() {
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
                             // if login fails show an error message
