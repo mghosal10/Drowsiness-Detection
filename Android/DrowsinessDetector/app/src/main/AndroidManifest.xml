@@ -40,7 +40,8 @@
         <activity
             android:name=".HomeActivity"
             android:label="Home Activity"
-            android:parentActivityName=".MainActivity">
+            android:parentActivityName=".MainActivity"
+            android:screenOrientation="portrait" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.drowsinessdetector.MainActivity" />

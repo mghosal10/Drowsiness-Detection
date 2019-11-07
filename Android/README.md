@@ -14,7 +14,7 @@
 
 ## Java Classes
 Custom Java classes are located in: `DrowsinessDetector/app/src/main/java/com/example/drowsinessdetector/`:
-* `MainActivity` The first screen when the app is first launched. Should replace this screen with a proper Log In page eventually.
+* `MainActivity` The login page when the app is first launched.
 * `HomeActivity` The main menu of the app once the user logs in. From here, the user can start the detector camera, or check their streak.
 * `CameraActivity` Detector camera. Video recorded through this screen is sent to the AWS server for analysis.
 * `CameraPreview` Helper class of `CameraActivity`. Sets up the Camera object and displays the camera preview in the `CameraActivity`'s layout.

@@ -41,6 +41,8 @@ class TestDetectionServer(BaseHTTPRequestHandler):
     def do_POST(self):
         print('Post!')
         #ctype, pdict = cgi.parse_header(self.headers['content-type'])
+        #print('ctype', ctype)
+        #print('pdict', pdict)
         #pdict['boundary'] = bytes(pdict['boundary'], "utf-8")
         #postvars = cgi.parse_multipart(self.rfile, pdict)
         #imageArr = numpy.fromstring(postvars['fileupload'][0], numpy.uint8)

@@ -9,6 +9,7 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
@@ -41,8 +42,12 @@ public class VideoSender extends AsyncTask<String, Void, Void> {
     }
 
     // sends a video periodically
+    // https://stackoverflow.com/questions/5017093/upload-video-from-android-to-server
     @Override
     protected Void doInBackground(String... params) {
+
+        String boundary = "*****";
+        int serverResponseCode;
 
         try {
             this.serverUrl = new URL(params[0]);
@@ -52,6 +57,11 @@ public class VideoSender extends AsyncTask<String, Void, Void> {
             urlConnection.setDoOutput(true);
             urlConnection.setChunkedStreamingMode(0);
             urlConnection.setRequestMethod("POST");
+            //add the content type of the request, most post data is of this type
+            urlConnection.addRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+            urlConnection.setRequestProperty("ENCTYPE", "multipart/form-data");
+            urlConnection.setRequestProperty("Content-Type", "multipart/form-data;boundary=" + boundary);
+            urlConnection.setRequestProperty("uploaded_file", this.outfile_path);
         } catch(Exception e) {
             Log.d("VideoSender", "Failed to create HTTP connection.");
             return null;
@@ -68,14 +78,33 @@ public class VideoSender extends AsyncTask<String, Void, Void> {
                 //mrec.stop();
 
                 File vid = new File(this.outfile_path);
+                if (!vid.isFile()) {
+                    Log.e("VideoSender", "Video does not exist");
+                    break;
+                }
+
                 Log.d("VideoSender", "length of video=" + vid.length());
 
                 byte[] b = new byte[(int) vid.length()];
+
+                //add the content length of the post data
+                urlConnection.addRequestProperty("Content-Length", Integer.toString((int) vid.length()));
+
+                // urlConnection.connect();
+
                 FileInputStream fileInputStream = new FileInputStream(vid);
                 fileInputStream.read(b);
                 out = urlConnection.getOutputStream();
                 out = new BufferedOutputStream(out);
                 out.write(b); // write to server
+                out.flush();
+                // out.close();
+
+                // Response from the server (code and message)
+                serverResponseCode = urlConnection.getResponseCode();
+                String serverResponseMessage = urlConnection.getResponseMessage();
+                Log.d("VideoSender", "Server response: " + serverResponseMessage +
+                        "; code=" + Integer.toString(serverResponseCode));
 
                 num_sent++; // number of videos sent
 
