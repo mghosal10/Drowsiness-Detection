@@ -143,6 +143,8 @@ public class MainActivity extends AppCompatActivity {
                             else
                             {
                                 Intent intent = new Intent(MainActivity.this, HomeActivity.class);
+                                String email = editTextEmail.getText().toString();
+                                intent.putExtra(EXTRA_MESSAGE, email);
                                 startActivity(intent);
                                 finish();
                             }

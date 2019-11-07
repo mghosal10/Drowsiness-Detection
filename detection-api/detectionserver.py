@@ -40,16 +40,16 @@ class TestDetectionServer(BaseHTTPRequestHandler):
 
     def do_POST(self):
         print('Post!')
-        ctype, pdict = cgi.parse_header(self.headers['content-type'])
-        pdict['boundary'] = bytes(pdict['boundary'], "utf-8")
-        postvars = cgi.parse_multipart(self.rfile, pdict)
-        imageArr = numpy.fromstring(postvars['fileupload'][0], numpy.uint8)
-        image = cv2.imdecode(imageArr, cv2.IMREAD_GRAYSCALE)
-        detector = DrowsinessDetector()
-        self._set_headers()
-        eyesClosed = detector.areEyesClosed(image)
-        responseMessage = "{drowsiness=%s}" % (str(eyesClosed))
-        self.wfile.write(self._html(responseMessage))
+        #ctype, pdict = cgi.parse_header(self.headers['content-type'])
+        #pdict['boundary'] = bytes(pdict['boundary'], "utf-8")
+        #postvars = cgi.parse_multipart(self.rfile, pdict)
+        #imageArr = numpy.fromstring(postvars['fileupload'][0], numpy.uint8)
+        #image = cv2.imdecode(imageArr, cv2.IMREAD_GRAYSCALE)
+        #detector = DrowsinessDetector()
+        #self._set_headers()
+        #eyesClosed = detector.areEyesClosed(image)
+        #responseMessage = "{drowsiness=%s}" % (str(eyesClosed))
+        #self.wfile.write(self._html(responseMessage))
 
 
 def run(server_class=HTTPServer, handler_class=TestDetectionServer, addr="localhost", port=8000):

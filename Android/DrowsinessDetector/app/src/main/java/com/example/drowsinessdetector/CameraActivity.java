@@ -32,6 +32,7 @@ import com.example.drowsinessdetector.VideoSender;
 public class CameraActivity extends AppCompatActivity {
 
     public static final int MEDIA_TYPE_VIDEO = 2;
+    public static final int FRONT_CAMERA = 1;
 
     private String outfile_path = null;
     private Camera mCamera;
@@ -47,7 +48,7 @@ public class CameraActivity extends AppCompatActivity {
     public static Camera getCamera() {
         Camera c = null;
         try {
-            c = Camera.open();
+            c = Camera.open(FRONT_CAMERA);
         } catch(Exception e) {
             Log.d("getCamera", "Camera does not exist.");
         }
