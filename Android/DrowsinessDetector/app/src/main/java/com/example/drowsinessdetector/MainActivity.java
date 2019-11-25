@@ -17,6 +17,8 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -27,14 +29,18 @@ public class MainActivity extends AppCompatActivity {
     private Button buttonRegister;
     private EditText editTextPassword;
     private Button buttonLogin;
+    public int mStreak = 0;
 
     FirebaseAuth firebaseAuth;
+    FirebaseDatabase mFirebaseDatabase;
+    DatabaseReference mDbReference;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        mDbReference = mFirebaseDatabase.getInstance().getReference("streak");
 
         //get Firebase instance
         firebaseAuth = FirebaseAuth.getInstance();
@@ -57,6 +63,10 @@ public class MainActivity extends AppCompatActivity {
                 //trim username and password strings
                 String email = editTextEmail.getText().toString().trim();
                 String password = editTextPassword.getText().toString().trim();
+
+                //Splitting email id to get a username
+                String[] username_arr = email.split("@");
+                final String uname = username_arr[0];
 
                 //display error message if username and password fields are empty
                 if (email.isEmpty() && password.isEmpty()) {
@@ -91,6 +101,11 @@ public class MainActivity extends AppCompatActivity {
                             // if registration is successful go to the same Activity
                             else {
                                 startActivity(new Intent(MainActivity.this, MainActivity.class));
+                                // On successful registration, create an entry for a particular user and set the streak value to 0 in the database
+                                String id = mDbReference.push().getKey();
+                                Streak stk = new Streak(uname, 0);
+                                mDbReference.child(id).setValue(stk);
+
                             }
                         }
                     });
@@ -154,16 +169,5 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-
-
-
-
     }
-
-    /*public void login(View view) {
-        Intent intent = new Intent(this, HomeActivity.class);
-        String username = mUsername.getText().toString();
-        intent.putExtra(EXTRA_MESSAGE, username);
-        startActivity(intent);
-    }*/
 }

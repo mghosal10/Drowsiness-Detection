@@ -1,5 +1,6 @@
 package com.example.drowsinessdetector;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -15,15 +16,22 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 public class HomeActivity extends AppCompatActivity {
 
     public static final String EXTRA_MESSAGE =
             "com.example.android.twoactivities.extra.MESSAGE";
-    private int mStreak = 0;
+    public int mStreak = 0;
     private Button buttonLogout;
 
     FirebaseAuth firebaseAuth;
+    FirebaseDatabase mFirebaseDatabase;
+    DatabaseReference mDbReference;
 
     private final int CAMERA_PERMISSION_REQUEST = 0;
 
@@ -38,14 +46,43 @@ public class HomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
+        mDbReference = mFirebaseDatabase.getInstance().getReference("streak");
+
         Intent intent = getIntent(); // get Activity that initiated this Activity
-        String username = intent.getStringExtra(MainActivity.EXTRA_MESSAGE);
+        final String username = intent.getStringExtra(MainActivity.EXTRA_MESSAGE);
         TextView usernameDisplay = findViewById(R.id.username_display);
         usernameDisplay.setText(username);
         buttonLogout = findViewById(R.id.logout_button);
+        final TextView streakDisplay = findViewById(R.id.streak_value);
 
-        TextView streakDisplay = findViewById(R.id.streak_value);
-        streakDisplay.setText(Integer.toString(mStreak));
+        //Splitting email id to get a username
+        String[] username_arr = username.split("@");
+        String uname = username_arr[0];
+
+        // get the count of the streak from the database
+        mDbReference.orderByChild("user").equalTo(uname).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                for(DataSnapshot snapshot : dataSnapshot.getChildren())
+                {
+                    Streak records = snapshot.getValue(Streak.class);
+                    int streak_value = records.getStreak();
+                    //display the streak value on the UI
+                    streakDisplay.setText(Integer.toString(streak_value));
+
+                    //streak value incremented by 1 and updated in the database
+                   // snapshot.getRef().child("streak").setValue(streak_value+1);
+
+                    Log.d("HomeActivity", "Streak count in the database is " + streak_value +" and " + username);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
 
         Log.d("HomeActivity", "onCreate(): Has camera: " + deviceHasCamera(this));
 
@@ -62,6 +99,7 @@ public class HomeActivity extends AppCompatActivity {
         });
 
     }
+
 
     // Called when user decides to grant a permission or not
     @Override
