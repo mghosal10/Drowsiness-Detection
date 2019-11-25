@@ -15,11 +15,18 @@ import cgi
 import cv2
 import numpy
 import base64
+import os
+import dlib
 from http.server import HTTPServer, BaseHTTPRequestHandler
-
 from detector import DrowsinessDetector
 
 class TestDetectionServer(BaseHTTPRequestHandler):
+    detector = DrowsinessDetector()
+
+    def __init__(self, request, client_address, server):
+        print("Constructor called")
+        BaseHTTPRequestHandler.__init__(self, request, client_address, server)
+
     def _set_headers(self):
         self.send_response(200)
         self.send_header("Content-type", "text/json")
@@ -40,6 +47,43 @@ class TestDetectionServer(BaseHTTPRequestHandler):
 
     def do_POST(self):
         print('Post!')
+
+        response = {"drowsy": False}
+
+        ## Save file temporarily
+        tmpFile = open("tmp.mpg", 'wb')
+        tmpFile.write(self.rfile.read(int(self.headers["content-length"])))
+        tmpFile.close()
+
+        ## Split video file into frames
+        vidObj = cv2.VideoCapture("tmp.mpg")
+        count = 0
+        success = 1
+        while success:
+            success, image = vidObj.read()
+
+            if count % 10 == 0:
+                cv2.imwrite("tmpFrame.jpg", image)
+
+                img = dlib.load_grayscale_image("tmpFrame.jpg")
+                appearsDrowsy = TestDetectionServer.detector.areEyesClosed(img)
+                if(TestDetectionServer.detector.isDrowsy()):
+                    response["drowsy"] = True
+                    break
+
+                if os.path.exists("tmpFrame.jpg"):
+                    os.remove("tmpFrame.jpg")
+
+            count += 1
+        print(count)
+
+        ## Remove tmp file
+        if os.path.exists("tmp.mpg"):
+            os.remove("tmp.mpg")
+
+        self._set_headers()
+        self.wfile.write(self._html(str(response)))
+
         #ctype, pdict = cgi.parse_header(self.headers['content-type'])
         #print('ctype', ctype)
         #print('pdict', pdict)
@@ -63,5 +107,4 @@ def run(server_class=HTTPServer, handler_class=TestDetectionServer, addr="localh
 
 
 if __name__ == "__main__":
-	#run(addr = "localhost", port = 8000)
-	run(addr = "172.20.10.3", port=8000)
+	run(addr = "localhost", port = 8000)
