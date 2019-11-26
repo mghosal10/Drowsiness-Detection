@@ -51,12 +51,12 @@ class TestDetectionServer(BaseHTTPRequestHandler):
         response = {"drowsy": False}
 
         ## Save file temporarily
-        tmpFile = open("tmp.mpg", 'wb')
+        tmpFile = open("tmp.mpeg", 'wb')
         tmpFile.write(self.rfile.read(int(self.headers["content-length"])))
         tmpFile.close()
 
         ## Split video file into frames
-        vidObj = cv2.VideoCapture("tmp.mpg")
+        vidObj = cv2.VideoCapture("tmp.mpeg")
         count = 0
         success = 1
         while success:
