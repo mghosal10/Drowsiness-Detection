@@ -53,9 +53,9 @@ class TestDetectionServer(BaseHTTPRequestHandler):
         ## Save file temporarily
         tmpFile = open("tmp.mpeg", 'wb')
         tmpFile.write(self.rfile.read(int(self.headers["content-length"])))
+        print("Bytes read: ", self.headers["content-length"])
         '''
         tmpFile.close()
-
         ## Split video file into frames
         vidObj = cv2.VideoCapture("tmp.mpeg")
         count = 0
