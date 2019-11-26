@@ -50,9 +50,12 @@ class DrowsinessDetector:
     """
     def areEyesClosed(self, img):
         landmarkDetector = dlib.get_frontal_face_detector()
-        shapePredictor = dlib.shape_predictor("/home/gregory/Downloads/shape_predictor_68_face_landmarks.dat")
+        shapePredictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
         dets = landmarkDetector(img, 1)
         print("num faces: ", len(dets))
+
+        if not dets:
+            return False
 
         facialLandmarks = shapePredictor(img, dets[0])
         # grab the indexes of the facial landmarks for the left and
@@ -75,7 +78,7 @@ class DrowsinessDetector:
         print(ear)
 
         if ear < self._getMinimumEyeAspectRatio():
-            self._incrementNumberConsecutiveDrowsyFrames()
+            self.incrementNumberConsecutiveDrowsyFrames()
             return True
 
         return False
@@ -103,24 +106,26 @@ class DrowsinessDetector:
 
         return ear
 
+    def isDrowsy(self):
+        return self.getNumberConsecutiveDrowsyFrames() > \
+               self.getMaxDrowsyFramesBeforeSignal()
+
     def _getMinimumEyeAspectRatio(self):
         return self._minimumEyeAspectRatioBeforeCloseAssumed
 
-    def _getMaxDrowsyFramesBeforeSignal(self):
+    def getMaxDrowsyFramesBeforeSignal(self):
         return self._maxDrowsyFramesBeforeSignal
 
-    def _getNumberConsecutiveDrowsyFrames(self):
+    def getNumberConsecutiveDrowsyFrames(self):
         return self._consecutiveDrowsyFrames
 
-    def _incrementNumberConsecutiveDrowsyFrames(self):
+    def incrementNumberConsecutiveDrowsyFrames(self):
         self._consecutiveDrowsyFrames += 1
 
-    def _resetNumberConsecutiveDrowsyFrames(self):
+    def resetNumberConsecutiveDrowsyFrames(self):
         self._consecutiveDrowsyFrames = 0
 
 if __name__ == "__main__":
     d = DrowsinessDetector()
     img = dlib.load_grayscale_image("testImage.png")
-    print(img.shape)
     print(d.areEyesClosed(img))
-    print(d.areEyesClosed(dlib.load_grayscale_image("closed.jpeg")))
