@@ -53,6 +53,7 @@ class TestDetectionServer(BaseHTTPRequestHandler):
         ## Save file temporarily
         tmpFile = open("tmp.mpeg", 'wb')
         tmpFile.write(self.rfile.read(int(self.headers["content-length"])))
+        '''
         tmpFile.close()
 
         ## Split video file into frames
@@ -62,17 +63,17 @@ class TestDetectionServer(BaseHTTPRequestHandler):
         while success:
             success, image = vidObj.read()
 
-            if count % 10 == 0:
-                cv2.imwrite("tmpFrame.jpg", image)
+            #if count % 20 == 0:
+            cv2.imwrite("tmpFrame.jpg", image)
 
-                img = dlib.load_grayscale_image("tmpFrame.jpg")
-                appearsDrowsy = TestDetectionServer.detector.areEyesClosed(img)
-                if(TestDetectionServer.detector.isDrowsy()):
-                    response["drowsy"] = True
-                    break
+            #    img = dlib.load_grayscale_image("tmpFrame.jpg")
+            #    appearsDrowsy = TestDetectionServer.detector.areEyesClosed(img)
+            #    if(TestDetectionServer.detector.isDrowsy()):
+            #        response["drowsy"] = True
+            #        break
 
-                if os.path.exists("tmpFrame.jpg"):
-                    os.remove("tmpFrame.jpg")
+            #    if os.path.exists("tmpFrame.jpg"):
+            #        os.remove("tmpFrame.jpg")
 
             count += 1
         print(count)
@@ -80,7 +81,7 @@ class TestDetectionServer(BaseHTTPRequestHandler):
         ## Remove tmp file
         if os.path.exists("tmp.mpg"):
             os.remove("tmp.mpg")
-
+        '''
         self._set_headers()
         self.wfile.write(self._html(str(response)))
 
