@@ -27,8 +27,8 @@ class TestDetectionServer(BaseHTTPRequestHandler):
         print("Constructor called")
         BaseHTTPRequestHandler.__init__(self, request, client_address, server)
 
-    def _set_headers(self):
-        self.send_response(200)
+    def _set_headers(self, responseCode):
+        self.send_response(responseCode)
         self.send_header("Content-type", "text/json")
         self.end_headers()
 
@@ -39,7 +39,7 @@ class TestDetectionServer(BaseHTTPRequestHandler):
         return message.encode("utf8")  # NOTE: must return a bytes object!
 
     def do_GET(self):
-        self._set_headers()
+        self._set_headers(200)
         self.wfile.write(self._html("WELCOME TO OUR DROWSINESS DETECTOR"))
 
     def do_HEAD(self):
@@ -54,35 +54,51 @@ class TestDetectionServer(BaseHTTPRequestHandler):
         tmpFile = open("tmp.mpeg", 'wb')
         tmpFile.write(self.rfile.read(int(self.headers["content-length"])))
         print("Bytes read: ", self.headers["content-length"])
-        '''
+
         tmpFile.close()
         ## Split video file into frames
         vidObj = cv2.VideoCapture("tmp.mpeg")
         count = 0
         success = 1
+
+        errored = False
+
         while success:
             success, image = vidObj.read()
+            if success != 1:
+                break
 
-            #if count % 20 == 0:
-            cv2.imwrite("tmpFrame.jpg", image)
+            if count % 1 == 0:
+                try:
+                    cv2.imwrite("tmpFrame.jpg", image)
+                    img = dlib.load_grayscale_image("tmpFrame.jpg")
+                    appearsDrowsy = TestDetectionServer.detector.areEyesClosed(img)
+                    print(appearsDrowsy)
+                    if(TestDetectionServer.detector.isDrowsy()):
+                        response["drowsy"] = True
+                        break
 
-            #    img = dlib.load_grayscale_image("tmpFrame.jpg")
-            #    appearsDrowsy = TestDetectionServer.detector.areEyesClosed(img)
-            #    if(TestDetectionServer.detector.isDrowsy()):
-            #        response["drowsy"] = True
-            #        break
+                    if os.path.exists("tmpFrame.jpg"):
+                        os.remove("tmpFrame.jpg")
 
-            #    if os.path.exists("tmpFrame.jpg"):
-            #        os.remove("tmpFrame.jpg")
+                except Exception as e:
+                    errored = True
+                    print(e)
+                    break
 
             count += 1
         print(count)
 
         ## Remove tmp file
-        if os.path.exists("tmp.mpg"):
-            os.remove("tmp.mpg")
-        '''
-        self._set_headers()
+        #if os.path.exists("tmp.mpg"):
+        #    os.remove("tmp.mpg")
+
+        if errored:
+            self._set_headers(500)
+        else:
+            self._set_headers(200)
+
+	print(response)
         self.wfile.write(self._html(str(response)))
 
         #ctype, pdict = cgi.parse_header(self.headers['content-type'])
