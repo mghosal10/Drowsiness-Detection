@@ -39,7 +39,8 @@ public class CameraActivity extends AppCompatActivity {
     private CameraPreview mPreview;
     private MediaRecorder mrec;
 
-    private String serverUrl = "http://172.20.10.3:8000";
+    // AWS url
+    private String serverUrl = "http://ec2-3-83-64-237.compute-1.amazonaws.com:8000";
     AsyncTask<String, Void, Void> sender;
 
     private boolean isRecording = false;
@@ -105,7 +106,8 @@ public class CameraActivity extends AppCompatActivity {
         mrec.setCamera(mCamera);
         mrec.setVideoSource(MediaRecorder.VideoSource.CAMERA);
         mrec.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
-        mrec.setVideoEncoder(MediaRecorder.VideoEncoder.MPEG_4_SP);
+        //mrec.setVideoEncoder(MediaRecorder.VideoEncoder.MPEG_4_SP);
+        mrec.setVideoEncoder(MediaRecorder.VideoEncoder.DEFAULT);
 
         // set output file ; use cache (which stores files temporarily) instead of external file
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
@@ -130,13 +132,13 @@ public class CameraActivity extends AppCompatActivity {
         mrec.start();
 
         // Start the background process VideoSender, that periodically sends video to server
-        try {
-            this.sender = new VideoSender(mrec, this.outfile_path);
-            sender.execute(this.serverUrl);
-        } catch (Exception e) {
-            Log.d("startCamera", "Failed to send video");
-            return false;
-        }
+//        try {
+//            this.sender = new VideoSender(mrec, this.outfile_path);
+//            sender.execute(this.serverUrl);
+//        } catch (Exception e) {
+//            Log.d("startCamera", "Failed to send video");
+//            return false;
+//        }
 
         return true; // success
     }
@@ -166,16 +168,16 @@ public class CameraActivity extends AppCompatActivity {
             mCamera.release();
             mCamera = null;
 
-//            // save video
-//            File vid = new File(this.outfile_path); // Does this overwrite the file or...?
+            // save video
+            File vid = new File(this.outfile_path); // Does this overwrite the file or...?
 
             // send video to server
-//            try {
-//                AsyncTask<String, Void, Void> sender = new VideoSender(vid);
-//                sender.execute(this.serverUrl);
-//            } catch (Exception e) {
-//                Log.d("stopCamera", "Failed to send video");
-//            }
+            try {
+                AsyncTask<String, Void, Void> sender = new VideoSender(vid);
+                sender.execute(this.serverUrl);
+            } catch (Exception e) {
+                Log.d("stopCamera", "Failed to send video");
+            }
 
         } else {
             Log.d("stopCamera", "Attempted to stop with no MediaRecorder installed.");
@@ -200,7 +202,7 @@ public class CameraActivity extends AppCompatActivity {
                             stopCamera();
                             setCameraButtonText(cameraButton, "Record");
                             isRecording = false;
-                            sender.cancel(true); // stop sending video
+                            //sender.cancel(true); // stop sending video
                             // return to home screen
                             Log.d("toggleCamera", "Stopped recording");
                             returnToMain(findViewById(android.R.id.content));
