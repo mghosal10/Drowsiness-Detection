@@ -98,7 +98,7 @@ class TestDetectionServer(BaseHTTPRequestHandler):
         else:
             self._set_headers(200)
 
-	print(response)
+	    #print(response)
         self.wfile.write(self._html(str(response)))
 
         #ctype, pdict = cgi.parse_header(self.headers['content-type'])
