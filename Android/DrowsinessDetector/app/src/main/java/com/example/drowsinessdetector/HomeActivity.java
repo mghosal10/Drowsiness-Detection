@@ -9,6 +9,7 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.icu.util.LocaleData;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.util.Log;
@@ -27,6 +28,8 @@ public class HomeActivity extends AppCompatActivity {
 
     public static final String EXTRA_MESSAGE =
             "com.example.android.twoactivities.extra.MESSAGE";
+    public static final int TEXT_REQUEST = 1;
+
     public int mStreak = 0;
     private Button buttonLogout;
 
@@ -162,6 +165,21 @@ public class HomeActivity extends AppCompatActivity {
         // start CameraActivity
         Log.d("HomeActivity", "Ready to start CameraActivity.");
         Intent intent = new Intent(this, CameraActivity.class);
-        startActivity(intent);
+        // startActivity(intent);
+        startActivityForResult(intent, TEXT_REQUEST);
+    }
+
+
+    // retrieves result of video recording (drowsy or not)
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == TEXT_REQUEST) {
+            if (resultCode == RESULT_OK) {
+                String brokeStreak =
+                        data.getStringExtra(CameraActivity.EXTRA_REPLY);
+                Log.d("HomeActivity", "brokeStreak: " + brokeStreak);
+            }
+        }
     }
 }

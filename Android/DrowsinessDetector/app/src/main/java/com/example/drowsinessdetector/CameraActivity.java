@@ -3,6 +3,7 @@ package com.example.drowsinessdetector;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
+import android.content.Intent;
 import android.hardware.Camera;
 import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
@@ -31,6 +32,10 @@ import com.example.drowsinessdetector.VideoSender;
 
 public class CameraActivity extends AppCompatActivity {
 
+    // to send result to HomeActivity
+    public static final String EXTRA_REPLY =
+            "com.example.android.twoactivities.extra.REPLY";
+
     public static final int MEDIA_TYPE_VIDEO = 2;
     public static final int FRONT_CAMERA = 1;
 
@@ -39,7 +44,7 @@ public class CameraActivity extends AppCompatActivity {
     private CameraPreview mPreview;
     private MediaRecorder mrec;
 
-    public boolean mBrokeStreak = false;
+    private boolean mBrokeStreak;
 
     // AWS url
     //private String serverUrl = "http://ec2-18-206-58-176.compute-1.amazonaws.com:8000";
@@ -85,7 +90,14 @@ public class CameraActivity extends AppCompatActivity {
             mCamera.stopPreview();
             mCamera.release();
         }
-        finish(); // return to MainActivity
+
+        // send result of drowsiness recording back to HomeActivity
+        Intent result = new Intent();
+        Log.d("CameraActivity", "Sending " + mBrokeStreak + " to HomeActivity");
+        result.putExtra(EXTRA_REPLY, Boolean.toString(mBrokeStreak));
+        setResult(RESULT_OK, result);
+
+        finish(); // return to HomeActivity
     }
 
     private boolean startCamera() {
@@ -230,8 +242,9 @@ public class CameraActivity extends AppCompatActivity {
     }
 
     public void saveResult(boolean brokeStreak) {
-        Log.d("CameraActivity", "brokeStreak: " + brokeStreak);
+        //Log.d("CameraActivity", "saveResult(): brokeStreak: " + Boolean.toString(brokeStreak) );
         mBrokeStreak = brokeStreak;
+        Log.d("CameraActivity", "set mBrokeStreak: " + mBrokeStreak);
     }
 
 }

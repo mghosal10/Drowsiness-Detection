@@ -37,7 +37,7 @@ public class VideoSender extends AsyncTask<String, Void, Void> {
 
     String outfile_path; // where the video is saved on the Android phone
     String cacheDir; // temporary storage for video file
-    int interval = 10; // time between sending video ; in miliseconds ; also needs to be large enough so
+    int interval = 1000; // time between sending video ; in miliseconds ; also needs to be large enough so
     // the media recorder has some content (mrec.stop() fails if not enough content apparently...)
 
     HttpURLConnection urlConnection;
@@ -64,6 +64,7 @@ public class VideoSender extends AsyncTask<String, Void, Void> {
     @Override
     protected void onCancelled() {
         Log.d("VideoSender", "onCancelled");
+
         super.onCancelled();
         Log.d("VideoSender", "Terminating VideoSender and closing HTTP connection");
         try {
@@ -93,7 +94,7 @@ public class VideoSender extends AsyncTask<String, Void, Void> {
         }
 
         // mCameraActivity.mBrokeStreak = true; // test
-        mCameraActivity.saveResult(mBrokeStreak);
+        Log.d("VideoSender", "Sending brokeStreak=" + mBrokeStreak);
     }
 
     protected void startMediaRecorder() {
@@ -310,6 +311,7 @@ public class VideoSender extends AsyncTask<String, Void, Void> {
 
                     if(!mBrokeStreak) {
                         mBrokeStreak = true;
+                        mCameraActivity.saveResult(mBrokeStreak);
                     }
                 }
 
