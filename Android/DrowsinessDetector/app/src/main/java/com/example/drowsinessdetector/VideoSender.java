@@ -1,11 +1,15 @@
 package com.example.drowsinessdetector;
 
+import android.content.Context;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.hardware.Camera;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.Toast;
 
 import org.json.JSONObject;
 
@@ -33,7 +37,7 @@ public class VideoSender extends AsyncTask<String, Void, Void> {
 
     String outfile_path; // where the video is saved on the Android phone
     String cacheDir; // temporary storage for video file
-    int interval = 1000; // time between sending video ; in miliseconds ; also needs to be large enough so
+    int interval = 10; // time between sending video ; in miliseconds ; also needs to be large enough so
     // the media recorder has some content (mrec.stop() fails if not enough content apparently...)
 
     HttpURLConnection urlConnection;
@@ -96,6 +100,8 @@ public class VideoSender extends AsyncTask<String, Void, Void> {
 
         try{
             mrec = new MediaRecorder();
+            // turn off recording sounds
+            ((AudioManager)mCameraActivity.getSystemService(Context.AUDIO_SERVICE)).setStreamMute(AudioManager.STREAM_SYSTEM,true);
         } catch(Exception e) {
             Log.d("VideoSender", "Failed to create a new MediaRecorder");
             e.printStackTrace();
@@ -285,9 +291,43 @@ public class VideoSender extends AsyncTask<String, Void, Void> {
 
                 boolean isDrowsy = this.isDrowsy( urlConnection );
                 Log.d("VideoSender", "isDrowsy: " + isDrowsy);
-                if(!mBrokeStreak && isDrowsy) {
-                    mBrokeStreak = true;
+                if(isDrowsy) {
+                    // create notification message
+                    mCameraActivity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Log.d("VideoSender", "Creating a toast message.");
+                            CharSequence text = "Drowsiness detected. Please pull over for your safety.";
+                            int duration = Toast.LENGTH_SHORT;
+                            Toast toast = Toast.makeText(mCameraActivity, text, duration);
+                            toast.show();
+
+                            // make sound effect to alert the driver
+                            MediaPlayer mp = MediaPlayer.create(mCameraActivity.getApplicationContext(), R.raw.alert);
+                            mp.start();
+                        }
+                    }); // notification message
+
+                    if(!mBrokeStreak) {
+                        mBrokeStreak = true;
+                    }
                 }
+
+                // test create notification message
+//                mCameraActivity.runOnUiThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        Log.d("VideoSender", "Creating a toast message.");
+//                        CharSequence text = "Drowsiness detected. Please pull over for your safety.";
+//                        int duration = Toast.LENGTH_SHORT;
+//                        Toast toast = Toast.makeText(mCameraActivity, text, duration);
+//                        toast.show();
+//
+//                        // make sound effect to alert the driver
+//                        MediaPlayer mp = MediaPlayer.create(mCameraActivity.getApplicationContext(), R.raw.alert);
+//                        mp.start();
+//                    }
+//                }); // notification message
 
                 urlConnection.disconnect();
             } catch (Exception e) {
