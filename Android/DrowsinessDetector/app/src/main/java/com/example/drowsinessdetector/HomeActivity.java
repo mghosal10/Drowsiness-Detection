@@ -36,6 +36,7 @@ public class HomeActivity extends AppCompatActivity {
     FirebaseAuth firebaseAuth;
     FirebaseDatabase mFirebaseDatabase;
     DatabaseReference mDbReference;
+    String uname;
 
     private final int CAMERA_PERMISSION_REQUEST = 0;
 
@@ -62,7 +63,7 @@ public class HomeActivity extends AppCompatActivity {
 
         //Splitting email id to get a username
         String[] username_arr = username.split("@");
-        String uname = username_arr[0];
+        uname = username_arr[0];
 
         // get the count of the streak from the database
         mDbReference.orderByChild("user").equalTo(uname).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -173,12 +174,46 @@ public class HomeActivity extends AppCompatActivity {
     // retrieves result of video recording (drowsy or not)
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        mDbReference = mFirebaseDatabase.getInstance().getReference("streak");
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == TEXT_REQUEST) {
             if (resultCode == RESULT_OK) {
-                String brokeStreak =
-                        data.getStringExtra(CameraActivity.EXTRA_REPLY);
+                final String brokeStreak = data.getStringExtra(CameraActivity.EXTRA_REPLY);
                 Log.d("HomeActivity", "brokeStreak: " + brokeStreak);
+
+                mDbReference.orderByChild("user").equalTo(uname).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                        for(DataSnapshot snapshot : dataSnapshot.getChildren())
+                        {
+                            if(brokeStreak.equalsIgnoreCase("true"))
+                            {
+                                //streak value set to 0 in the database when brokenStreak value is true
+                                snapshot.getRef().child("streak").setValue(0);
+                            }
+                            else
+                            {
+                                Streak records = snapshot.getValue(Streak.class);
+                                int streak_value = records.getStreak();
+                                //streak value is incremented by 1 when brokenStreak value is false
+                                snapshot.getRef().child("streak").setValue(streak_value+1);
+                            }
+                            Streak records = snapshot.getValue(Streak.class);
+                            int streak_value = records.getStreak();
+
+                            Log.d("HomeActivity", "Streak count in the database is " + streak_value);
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
+
+
+
             }
         }
     }
