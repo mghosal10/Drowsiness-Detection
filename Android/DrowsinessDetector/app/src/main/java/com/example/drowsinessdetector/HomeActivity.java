@@ -57,13 +57,14 @@ public class HomeActivity extends AppCompatActivity {
         Intent intent = getIntent(); // get Activity that initiated this Activity
         final String username = intent.getStringExtra(MainActivity.EXTRA_MESSAGE);
         TextView usernameDisplay = findViewById(R.id.username_display);
-        usernameDisplay.setText(username);
         buttonLogout = findViewById(R.id.logout_button);
         final TextView streakDisplay = findViewById(R.id.streak_value);
 
         //Splitting email id to get a username
         String[] username_arr = username.split("@");
         uname = username_arr[0];
+
+        usernameDisplay.setText(uname);
 
         // get the count of the streak from the database
         mDbReference.orderByChild("user").equalTo(uname).addListenerForSingleValueEvent(new ValueEventListener() {
