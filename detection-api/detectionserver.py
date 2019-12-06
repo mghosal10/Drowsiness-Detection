@@ -104,26 +104,8 @@ class TestDetectionServer(BaseHTTPRequestHandler):
         else:
             self._set_headers(200)
 
-<<<<<<< HEAD
         print(response)
-=======
-	    #print(response)
->>>>>>> 95edaa38eb35dafd62c0805675e8d0b7a423c843
         self.wfile.write(self._html(str(response)))
-
-        #ctype, pdict = cgi.parse_header(self.headers['content-type'])
-        #print('ctype', ctype)
-        #print('pdict', pdict)
-        #pdict['boundary'] = bytes(pdict['boundary'], "utf-8")
-        #postvars = cgi.parse_multipart(self.rfile, pdict)
-        #imageArr = numpy.fromstring(postvars['fileupload'][0], numpy.uint8)
-        #image = cv2.imdecode(imageArr, cv2.IMREAD_GRAYSCALE)
-        #detector = DrowsinessDetector()
-        #self._set_headers()
-        #eyesClosed = detector.areEyesClosed(image)
-        #responseMessage = "{drowsiness=%s}" % (str(eyesClosed))
-        #self.wfile.write(self._html(responseMessage))
-
 
 def run(server_class=HTTPServer, handler_class=TestDetectionServer, addr="localhost", port=8000):
     server_address = (addr, port)
