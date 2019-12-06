@@ -5,30 +5,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.hardware.Camera;
-import android.media.CamcorderProfile;
-import android.media.MediaRecorder;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
+import android.os.PowerManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
-
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
-import com.example.drowsinessdetector.VideoSender;
 
 public class CameraActivity extends AppCompatActivity {
 
@@ -36,19 +19,18 @@ public class CameraActivity extends AppCompatActivity {
     public static final String EXTRA_REPLY =
             "com.example.android.twoactivities.extra.REPLY";
 
-    public static final int MEDIA_TYPE_VIDEO = 2;
     public static final int FRONT_CAMERA = 1;
 
-    private String outfile_path = null;
     private Camera mCamera;
     private CameraPreview mPreview;
-    private MediaRecorder mrec;
 
     private boolean mBrokeStreak;
 
+    PowerManager.WakeLock mWakelock; // prevent screen from sleeping
+
     // AWS url
-    //private String serverUrl = "http://ec2-18-206-58-176.compute-1.amazonaws.com:8000";
-    private String serverUrl = "http://192.168.1.85:8000";
+    private String serverUrl = "http://ec2-54-175-251-216.compute-1.amazonaws.com:8000";
+    // private String serverUrl = "http://192.168.1.85:8000";
 
     AsyncTask<String, Void, Void> sender;
 
@@ -82,6 +64,11 @@ public class CameraActivity extends AppCompatActivity {
         mPreview = new CameraPreview(this, mCamera);
         FrameLayout preview = findViewById(R.id.camera_preview);
         preview.addView(mPreview);
+
+        // prevent screen from sleeping
+        PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        mWakelock = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, "CameraActivity:wakeLock");
+        mWakelock.acquire();
     }
 
     public void returnToMain(View view) {
@@ -90,6 +77,8 @@ public class CameraActivity extends AppCompatActivity {
             mCamera.stopPreview();
             mCamera.release();
         }
+
+        mWakelock.release();
 
         // send result of drowsiness recording back to HomeActivity
         Intent result = new Intent();
@@ -107,48 +96,10 @@ public class CameraActivity extends AppCompatActivity {
             return false;
         }
 
-        // at this point, Camera.open() was successfully called
-        // https://developer.android.com/guide/topics/media/camera#custom-camera
-
-//        mrec = new MediaRecorder();
-//        if(mrec == null) {
-//            Log.d("startCamera", "Failed to get MediaRecorder.");
-//            return false;
-//        }
-
-        // unlock the camera
-        // mCamera.unlock();
-
-        // configure MediaRecorder
-//        mrec.setCamera(mCamera);
-//        mrec.setVideoSource(MediaRecorder.VideoSource.CAMERA);
-//        mrec.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
-//        //mrec.setVideoEncoder(MediaRecorder.VideoEncoder.MPEG_4_SP);
-//        mrec.setVideoEncoder(MediaRecorder.VideoEncoder.DEFAULT);
-
-        // set output file ; use cache (which stores files temporarily) instead of external file
-//        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-//        this.outfile_path = this.getCacheDir().toString() + "/" + "VID_" + timeStamp + ".mpeg";
-//        //String file_path = getExternalFilesDir(null).toString() + "/" + outfile;
-//        Log.d("startCamera", "file_path: " + this.outfile_path);
-//        mrec.setOutputFile(this.outfile_path);
-
-        // set preview display
-        // mrec.setPreviewDisplay(mPreview.getSurfaceHolder().getSurface());
-
-        // prepare media recorder before recording
-//        try {
-//            mrec.prepare();
-//        } catch(Exception e) {
-//            Log.d("startCamera", "Failed to prepare MediaRecorder");
-//            mrec = null;
-//            return false;
-//        }
-
         Log.d("startCamera", "Camera is ready to record.");
-//        mrec.start();
 
         // Start the background process VideoSender, that periodically sends video to server
+        // VideoSender will create MediaRecorder objects
         try {
             this.sender = new VideoSender(this, mPreview, mCamera,
                     this.getCacheDir().toString(), (FrameLayout) findViewById(R.id.camera_preview));
@@ -160,49 +111,6 @@ public class CameraActivity extends AppCompatActivity {
 
         return true; // success
     }
-
-//    private void stopCamera() {
-//        if(mCamera != null && mrec != null) {
-//
-////            // stop recorder
-////            mrec.stop();
-////
-////            // reset configuration settings
-////            mrec.reset();
-////
-////            // release media recorder
-////            mrec.release();
-////
-////            // lock camera
-////            mCamera.lock();
-////
-////            // stop the camera preview
-////            mCamera.stopPreview();
-////
-////            // remove this MediaRecorder ?
-////            mrec = null;
-////
-////            Log.d("stopCamera", "Releasing camera.");
-////            mCamera.release();
-////            mCamera = null;
-//
-////            // save video
-////            File vid = new File(this.outfile_path); // Does this overwrite the file or...?
-//
-//            // send video to server
-////            try {
-////                AsyncTask<String, Void, Void> sender = new VideoSender(vid);
-////                sender.execute(this.serverUrl);
-////            } catch (Exception e) {
-////                Log.d("stopCamera", "Failed to send video");
-////                e.printStackTrace();
-////                System.out.println(e);
-////            }
-//
-//        } else {
-//            Log.d("stopCamera", "Attempted to stop with no MediaRecorder installed.");
-//        }
-//    }
 
     private void setCameraButtonText(Button b, String s) {
         b.setText(s);
@@ -218,9 +126,8 @@ public class CameraActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View v) {
                         if(isRecording) {
-                            // stop recording and release camera
-                            // stopCamera();
-                            sender.cancel(true); // stop sending video
+                            // terminate background process VideoSender
+                            sender.cancel(true);
                             setCameraButtonText(cameraButton, "Record");
                             isRecording = false;
                             // return to home screen
@@ -242,7 +149,6 @@ public class CameraActivity extends AppCompatActivity {
     }
 
     public void saveResult(boolean brokeStreak) {
-        //Log.d("CameraActivity", "saveResult(): brokeStreak: " + Boolean.toString(brokeStreak) );
         mBrokeStreak = brokeStreak;
         Log.d("CameraActivity", "set mBrokeStreak: " + mBrokeStreak);
     }

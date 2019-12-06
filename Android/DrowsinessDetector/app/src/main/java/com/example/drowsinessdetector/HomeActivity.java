@@ -9,8 +9,6 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.icu.util.LocaleData;
-import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -26,19 +24,15 @@ import com.google.firebase.database.ValueEventListener;
 
 public class HomeActivity extends AppCompatActivity {
 
-    public static final String EXTRA_MESSAGE =
-            "com.example.android.twoactivities.extra.MESSAGE";
     public static final int TEXT_REQUEST = 1;
+    private final int CAMERA_PERMISSION_REQUEST = 0;
 
-    public int mStreak = 0;
     private Button buttonLogout;
 
     FirebaseAuth firebaseAuth;
     FirebaseDatabase mFirebaseDatabase;
     DatabaseReference mDbReference;
     String uname;
-
-    private final int CAMERA_PERMISSION_REQUEST = 0;
 
     // Check if this device has a camera
     private boolean deviceHasCamera(Context context) {

@@ -7,7 +7,6 @@ import android.media.MediaRecorder;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.hardware.Camera;
-import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
@@ -19,7 +18,6 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.SimpleDateFormat;
@@ -43,10 +41,6 @@ public class VideoSender extends AsyncTask<String, Void, Void> {
     HttpURLConnection urlConnection;
 
     boolean mBrokeStreak = false;
-
-//    public VideoSender(File v) {
-//        this.vid = v;
-//    }
 
     // constructor ; store video to send to AWS
     public VideoSender(CameraActivity camActivity, CameraPreview preview, Camera cam,
@@ -93,8 +87,6 @@ public class VideoSender extends AsyncTask<String, Void, Void> {
             Log.d("VideoSender", "Failed to release camera");
         }
 
-        // mCameraActivity.mBrokeStreak = true; // test
-        Log.d("VideoSender", "Sending brokeStreak=" + mBrokeStreak);
     }
 
     protected void startMediaRecorder() {
@@ -122,21 +114,6 @@ public class VideoSender extends AsyncTask<String, Void, Void> {
         mrec.setOutputFile(this.outfile_path);
         Log.d("startCamera", "file_path: " + this.outfile_path);
 
-        //mrec.setPreviewDisplay(mPreview.getSurfaceHolder().getSurface());
-
-        // mPreview = new CameraPreview(mCameraActivity, mCamera);
-//        mCameraActivity.runOnUiThread(new Runnable() {
-//
-//            @Override
-//            public void run() {
-//                // Stuff that updates the UI
-//                //mFrameLayout.removeView(mPreview);
-//                //mFrameLayout.addView(mPreview);
-//                mrec.setPreviewDisplay(mPreview.getSurfaceHolder().getSurface());
-//            }
-//
-//        });
-
         try {
             mrec.prepare();
             mrec.start();
@@ -148,12 +125,8 @@ public class VideoSender extends AsyncTask<String, Void, Void> {
 
     }
 
-//    @Override
-//    protected void onPostExecute(Void result) {
-//        Log.d("VideoSender", "Return value: " + result);
-//    }
 
-    // parse JSON object
+    // parse JSON object received from HTTP connection
     protected boolean isDrowsy(HttpURLConnection urlConnection) {
 
         // Get JSON object from AWS response
@@ -193,23 +166,6 @@ public class VideoSender extends AsyncTask<String, Void, Void> {
     protected Void doInBackground(String... params) {
         Log.d("VideoSender", "doInBackground()");
 
-//        int serverResponseCode;
-//        try {
-//            Log.d("VideoSender", "in doInBackground");
-//            this.serverUrl = new URL(params[0]);
-//            // create a connection with server
-//            Log.d("VideoSender", "Server URL: " + serverUrl.toString());
-//            urlConnection = (HttpURLConnection) serverUrl.openConnection();
-//            urlConnection.setDoOutput(true);
-//            urlConnection.setRequestMethod("POST");
-//            urlConnection.addRequestProperty("Content-Type", "application/octet-stream");
-//            //urlConnection.setRequestProperty("connection", "Keep-Alive");
-//        } catch(Exception e) {
-//            Log.d("VideoSender", "Failed to create HTTP connection.");
-//            e.printStackTrace();
-//            return null;
-//        }
-
         int num_sent = 0; // only for debugging purposes
         OutputStream out;
 
@@ -217,7 +173,7 @@ public class VideoSender extends AsyncTask<String, Void, Void> {
 
             // record video for Interval time
             try {
-                Log.d("VideoSender", "Sleeping for " + interval + " seconds");
+                Log.d("VideoSender", "Sleeping for " + interval + " ms");
                 Thread.sleep(interval);
             } catch(Exception e) {
                 Log.d("VideoSender", "Failed to sleep...??");
@@ -259,6 +215,10 @@ public class VideoSender extends AsyncTask<String, Void, Void> {
                     Log.e("VideoSender", "Video does not exist");
                     break;
                 }
+
+                // start the recorder again
+                startMediaRecorder();
+
                 Log.d("VideoSender", "length of video=" + vid.length());
                 byte[] b = new byte[(int) vid.length()];
                 //add the content length of the post data
@@ -287,9 +247,6 @@ public class VideoSender extends AsyncTask<String, Void, Void> {
 
                 num_sent++; // number of videos sent
 
-                // start the recorder again
-                startMediaRecorder();
-
                 boolean isDrowsy = this.isDrowsy( urlConnection );
                 Log.d("VideoSender", "isDrowsy: " + isDrowsy);
                 if(isDrowsy) {
@@ -306,6 +263,14 @@ public class VideoSender extends AsyncTask<String, Void, Void> {
                             // make sound effect to alert the driver
                             MediaPlayer mp = MediaPlayer.create(mCameraActivity.getApplicationContext(), R.raw.alert);
                             mp.start();
+                            try {
+                                Thread.sleep(interval);
+                            } catch(Exception e) {
+                                Log.d("VideoSender", "Failed to sleep...");
+                            }
+                            mp.pause();
+                            mp.stop();
+                            mp.release();
                         }
                     }); // notification message
 
@@ -314,22 +279,6 @@ public class VideoSender extends AsyncTask<String, Void, Void> {
                         mCameraActivity.saveResult(mBrokeStreak);
                     }
                 }
-
-                // test create notification message
-//                mCameraActivity.runOnUiThread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        Log.d("VideoSender", "Creating a toast message.");
-//                        CharSequence text = "Drowsiness detected. Please pull over for your safety.";
-//                        int duration = Toast.LENGTH_SHORT;
-//                        Toast toast = Toast.makeText(mCameraActivity, text, duration);
-//                        toast.show();
-//
-//                        // make sound effect to alert the driver
-//                        MediaPlayer mp = MediaPlayer.create(mCameraActivity.getApplicationContext(), R.raw.alert);
-//                        mp.start();
-//                    }
-//                }); // notification message
 
                 urlConnection.disconnect();
             } catch (Exception e) {
