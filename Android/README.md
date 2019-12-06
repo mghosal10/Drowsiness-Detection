@@ -1,16 +1,26 @@
 # Drowsiness Detector Android App
 
 ## How to Run
+First, set up an AWS server (or a local server) and have it run `detectionserver.py`. The server should start listening to a port.
 1. Clone this repository `git clone https://github.com/gwint/Drowsiness-Detection.git`
 2. Download and open [Android Studio](https://developer.android.com/studio/install)
 3. Click `Open an Existing Android Studio Project` from Android Studio, and load the directory at the path: `Drowsiness-Detection/Android/DrowsinessDetector`
-4. Click the top-right triangle button `Run App` to launch the app.
+4. Open `CameraActivity.java` in Android Studio (under `app/java/com.example.drowsinessdetector/` and set the private `String` data member named `serverUrl` to the server's URL. The URL must contain `http://`.
+5. If you want to run the app on an Android device, plug the device into the computer. Else, the app will run on an emulator provided by Android Studio. Click the top-right triangle button `Run App` to build and launch the app.
 
-## Running with Test Server
+### Running with Test Server Locally (using campus network)
+If not running on an AWS server, you can run the server locally.
 1. Create a WiFi hotspot with personal phone. Then connect laptop (where server script will run) and Android phone to the WiFi hotspot.
 2. Obtain the new IP address of the laptop and correctly set the IP address in `CameraActivity.java` at `serverUrl`. Also change the IP address in the server script `detectionserver.py`.
 3. Start the server by running `python3 /detection-api/detectionserver.py` server.
 4. Start the app from Android Studio.
+
+## Using the App
+1. First, register a new username and password. Then enter your crendentials into the login page:
+![](screenshots/main-activity.png)
+2. Once logged in, you will enter the home screen, where your streak value is displayed. From here, you can start the camera by tapping the `START DROWSINESS DETECTOR` button.
+![](screenshots/home-activity.png)
+3. Once the camera has started, you can start recording by pressing `RECORD`. The camera will start recording and the backend server will start processing the recorded videos. To stop recording, press `STOP`; you will be taken back to the home screen. If drowsiness was not detected in this session, then the streak counter will be incremented when logged back in. Else, the streak counter will be reset to zero when logged back in.
 
 ## Java Classes
 Custom Java classes are located in: `DrowsinessDetector/app/src/main/java/com/example/drowsinessdetector/`:
