@@ -68,15 +68,21 @@ class TestDetectionServer(BaseHTTPRequestHandler):
             if success != 1:
                 break
 
-            if count % 1 == 0:
+            if count % 5 == 0:
                 try:
                     cv2.imwrite("tmpFrame.jpg", image)
                     img = dlib.load_grayscale_image("tmpFrame.jpg")
                     appearsDrowsy = TestDetectionServer.detector.areEyesClosed(img)
+
                     print(appearsDrowsy)
-                    if(TestDetectionServer.detector.isDrowsy()):
-                        response["drowsy"] = True
-                        break
+                    print("current consecutive drowsy frames: ", TestDetectionServer.detector.getNumberConsecutiveDrowsyFrames())
+                    if appearsDrowsy != None:
+                        if not appearsDrowsy:
+                            TestDetectionServer.detector.resetNumberConsecutiveDrowsyFrames()
+
+                        if(TestDetectionServer.detector.isDrowsy()):
+                            response["drowsy"] = True
+                            break
 
                     if os.path.exists("tmpFrame.jpg"):
                         os.remove("tmpFrame.jpg")
@@ -98,7 +104,11 @@ class TestDetectionServer(BaseHTTPRequestHandler):
         else:
             self._set_headers(200)
 
+<<<<<<< HEAD
+        print(response)
+=======
 	    #print(response)
+>>>>>>> 95edaa38eb35dafd62c0805675e8d0b7a423c843
         self.wfile.write(self._html(str(response)))
 
         #ctype, pdict = cgi.parse_header(self.headers['content-type'])
