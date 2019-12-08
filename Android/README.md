@@ -22,6 +22,12 @@ If not running on an AWS server, you can run the server locally.
 ![](screenshots/home-activity.png)
 3. Once the camera has started, you can start recording by pressing `RECORD`. The camera will start recording and the backend server will start processing the recorded videos. To stop recording, press `STOP`; you will be taken back to the home screen. If drowsiness was not detected in this session, then the streak counter will be incremented when logged back in. Else, the streak counter will be reset to zero when logged back in.
 
+## Databases
+1. We used Firebase Database to keep a record of users and their streak count.
+2. Currently, the project uses the database created using my google account. In case you want to change the database, go to the link "https://console.firebase.google.com/" and create your own database. Replace the google-services.json file in the project with the one you download from Firebase.
+3. In your Firebase project, under the "Authentication" tab go to the "Sign-in Method" and enable "Email/Password".
+4. Then go to the "Database" tab and select "Realtime Database". Go to "Rules" and set ".read: true" and ".write: true"
+
 ## Java Classes
 Custom Java classes are located in: `DrowsinessDetector/app/src/main/java/com/example/drowsinessdetector/`:
 * `MainActivity` The login page when the app is first launched.
