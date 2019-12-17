@@ -10,7 +10,7 @@
 7) dlib
 
 ## Using test detection server
-Make sure you have installed all the dependancies mentioned above. 
+Make sure you have installed all the dependencies mentioned above. 
 
 ## Setting the server up locally
 1) Open up detectionserver.py and locate the program's main method.
